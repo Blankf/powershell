@@ -1,4 +1,4 @@
-﻿Function Start-Windowsupdate {
+﻿Function Start-RemoteWindowsupdate {
 param(
 [Parameter(mandatory=$true)]
 [string]$ServerName,
