@@ -3,7 +3,7 @@ Import-Module Microsoft.Graph.Applications
 import-module Microsoft.Graph.Users
 
 $clientAppId = ""
-$userUpnOrIds = @()
+$userUpnOrIds = @("")
 $resourceAppId = "00000003-0000-0000-c000-000000000000" # Microsoft Graph API
 $permissions = @("offline_access", "User.Read", "Files.ReadWrite")
 
