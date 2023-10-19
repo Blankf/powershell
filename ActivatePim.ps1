@@ -6,7 +6,7 @@ Function Activate-Pim {
   Import-Module Microsoft.Graph.Authentication
   Import-Module Microsoft.Graph.Identity.Governance
 
-  Connect-MgGraph -NoWelcome
+  Connect-MgGraph
   $context = Get-MgContext
   $currentUser = (Get-MgUser -UserId $context.Account).Id
   $myRoles = Get-MgRoleManagementDirectoryRoleEligibilitySchedule -ExpandProperty RoleDefinition -All -Filter "principalId eq '$currentuser'"
