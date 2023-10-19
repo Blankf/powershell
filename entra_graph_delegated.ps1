@@ -68,3 +68,16 @@ $newscope = $filteredPermissions -join " "
 
 # Step 4. Apply the new scopes.
 Update-MgOauth2PermissionGrant -OAuth2PermissionGrantId $updgrant.Id -Scope $newscope
+
+# ----- Remove the whole grant ---- #
+
+$clientAppName = ""
+
+# Step 1. Check if a service principal exists for the client application. 
+$clientsp = Get-MgServicePrincipal -Filter "displayName eq '$($clientAppName)'"
+
+# Step 2. select the delegation that is for "AllPrincipals"
+$updgrant = Get-MgOauth2PermissionGrant -Filter "clientId eq '$($clientsp.id)' and consentType eq 'AllPrincipals'"
+
+# Step 3. Remove the whole grant
+Remove-MgOauth2PermissionGrant -OAuth2PermissionGrantId $updgrant.Id
