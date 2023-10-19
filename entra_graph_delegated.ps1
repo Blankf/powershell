@@ -77,7 +77,7 @@ $clientAppName = ""
 $clientsp = Get-MgServicePrincipal -Filter "displayName eq '$($clientAppName)'"
 
 # Step 2. select the delegation that is for "AllPrincipals"
-$updgrant = Get-MgOauth2PermissionGrant -Filter "clientId eq '$($clientsp.id)' and consentType eq 'AllPrincipals'"
+$grant = Get-MgOauth2PermissionGrant -Filter "clientId eq '$($clientsp.id)' and consentType eq 'AllPrincipals'"
 
 # Step 3. Remove the whole grant
-Remove-MgOauth2PermissionGrant -OAuth2PermissionGrantId $updgrant.Id
+Remove-MgOauth2PermissionGrant -OAuth2PermissionGrantId $grant.Id
