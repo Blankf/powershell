@@ -1,3 +1,6 @@
+# Once with PIM to gather the proper rights
+# Connect-MgGraph -scope "RoleEligibilitySchedule.ReadWrite.Directory","RoleManagement.ReadWrite.Directory","RoleManagement.Read.All","Group.Read.All","User.Read.All", "AppRoleAssignment.ReadWrite.All", "DelegatedPermissionGrant.ReadWrite.All"
+
 Function Activate-Pim {
   Param(
     [int]$Time = 4
