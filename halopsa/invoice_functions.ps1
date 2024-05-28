@@ -16,15 +16,17 @@ Function Update-HaloRecuringInvoiceAzureCosts {
   The ID of the client. Either the customer name or the client ID must be specified.
 
   .EXAMPLE
-  Update-HaloRecuringInvoiceAzureCosts -AzureCosts 1000 -Customer "Contoso"
+  Update-HaloRecuringInvoice -AzureCosts 1000 -Customer "Contoso"
 
   .EXAMPLE
-  Update-HaloRecuringInvoiceAzureCosts -AzureCosts 1000 -ClientID "12345"
+  Update-HaloRecuringInvoice -AzureCosts 1000 -ClientID "12345"
   #>
 
   param (
     [Parameter(Mandatory = $true)]
     $AzureCosts,
+    [Parameter(Mandatory = $false)]
+    $Pax8Costs,
     [Parameter(Mandatory = $true, ParameterSetName = "Customer")]
     [String]$Customer,
     [Parameter(Mandatory = $true, ParameterSetName = "ClientId")]
@@ -32,6 +34,7 @@ Function Update-HaloRecuringInvoiceAzureCosts {
   )
 
   $Azurecosts = [decimal]::Parse($AzureCosts, [System.Globalization.CultureInfo]::GetCultureInfo("en-US"))
+  $Pax8Costs = [decimal]::Parse($Pax8Costs, [System.Globalization.CultureInfo]::GetCultureInfo("en-US"))
 
   if (!($ClientID)) {
     $HaloClients = Get-HaloClient
@@ -40,6 +43,7 @@ Function Update-HaloRecuringInvoiceAzureCosts {
 
   $Invoice = Get-HaloRecurringInvoice -ClientID $ClientId -includeLines
   ($invoice.lines | Where-Object { $_.nominal_code -eq 'AZU001' }).unit_price = $AzureCosts
+  ($invoice.lines | Where-Object { $_.nominal_code -eq 'AZU001' }).unit_cost = $Pax8Costs
   $output = Set-HaloRecurringInvoice -RecurringInvoice $Invoice
 
   if ($output) {
@@ -48,5 +52,4 @@ Function Update-HaloRecuringInvoiceAzureCosts {
   else {
     Write-Output "Failed to update recurring invoice."
   }
-
 }
