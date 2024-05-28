@@ -16,10 +16,10 @@ Function Update-HaloRecuringInvoiceAzureCosts {
   The ID of the client. Either the customer name or the client ID must be specified.
 
   .EXAMPLE
-  Update-HaloRecuringInvoice -AzureCosts 1000 -Customer "Contoso"
+  Update-HaloRecuringInvoiceAzureCosts -AzureCosts 1000 -Customer "Contoso"
 
   .EXAMPLE
-  Update-HaloRecuringInvoice -AzureCosts 1000 -ClientID "12345"
+  Update-HaloRecuringInvoiceAzureCosts -AzureCosts 1000 -ClientID "12345"
   #>
 
   param (
