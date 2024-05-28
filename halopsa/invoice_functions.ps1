@@ -31,7 +31,7 @@ Function Update-HaloRecuringInvoice {
     [String]$ClientID
   )
 
-  $AzureCosts = $AzureCosts -replace '[^0-9.]'
+  $Azurecosts = [decimal]::Parse($AzureCosts, [System.Globalization.CultureInfo]::GetCultureInfo("en-US"))
 
   if (!($ClientID)) {
     $HaloClients = Get-HaloClient
