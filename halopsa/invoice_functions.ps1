@@ -23,7 +23,7 @@ Function Update-HaloRecuringInvoice {
   #>
 
   param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     $AzureCosts,
     [Parameter(Mandatory = $true, ParameterSetName = "Customer")]
     [String]$Customer,
@@ -44,7 +44,8 @@ Function Update-HaloRecuringInvoice {
 
   if ($output) {
     Write-Output "Recurring invoice updated successfully."
-  } else {
+  }
+  else {
     Write-Output "Failed to update recurring invoice."
   }
 
