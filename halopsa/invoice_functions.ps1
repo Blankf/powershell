@@ -1,4 +1,4 @@
-Function Update-HaloRecuringInvoice {
+Function Update-HaloRecuringInvoiceAzureCosts {
   <#
   .SYNOPSIS
   Updates the recurring invoice for a customer in the Halo system.
