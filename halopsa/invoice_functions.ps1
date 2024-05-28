@@ -31,7 +31,7 @@ Function Update-HaloRecuringInvoice {
     [String]$ClientID
   )
 
-  $AzureCosts = [decimal]::Parse($AzureCosts, [System.Globalization.CultureInfo]::GetCultureInfo("nl-NL"))
+  $AzureCosts = $AzureCosts -replace '[^0-9.]'
 
   if (!($ClientID)) {
     $HaloClients = Get-HaloClient
@@ -41,5 +41,11 @@ Function Update-HaloRecuringInvoice {
   $Invoice = Get-HaloRecurringInvoice -ClientID $ClientId -includeLines
   ($invoice.lines | Where-Object { $_.nominal_code -eq 'AZU001' }).unit_price = $AzureCosts
   $output = Set-HaloRecurringInvoice -RecurringInvoice $Invoice
+
+  if ($output) {
+    Write-Output "Recurring invoice updated successfully."
+  } else {
+    Write-Output "Failed to update recurring invoice."
+  }
 
 }
