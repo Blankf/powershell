@@ -109,10 +109,14 @@ Function connect-covebackupmanagement {
         # (Action if no error)
     }
 
-    return $session
+  #return $session
 }
 
-Function Get-AccountInfoById ([int]$AccountId) {
+Function Get-AccountInfoById {
+  param(
+    [Parameter(Mandatory=$true)]
+    [int]$AccountId
+  )
 
   $url = "https://api.backup.management/jsonapi"
   $method = 'POST'
@@ -182,6 +186,7 @@ Function Get-CoveDevices {
 
   try {
     $DeviceResponse = Invoke-RestMethod @params
+    #$global:tst = $DeviceResponse
   } catch {
     Write-Output "Error: $_"
   }
@@ -335,71 +340,151 @@ Function Get-CoveM365Users {
   $global:visa = $EnumerateM365UsersResponse.visa
 }
 
-# Function GetM365Stats {
-#   Param([Parameter(Mandatory=$true)][Int]$DeviceId) #end param
+Function Get-CoveM365History {
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$AccountToken,
+    [Parameter(Mandatory = $false)]
+    [string]$visa = $global:visa,
+    [Parameter(Mandatory = $false)]
+    [int]$historymonths = 1
+  )
+  $url = "https://api.backup.management/reporting_api"
+  $method = 'POST'
+  $data = @{
+    jsonrpc = '2.0'
+    id = '2'
+    method = 'EnumerateSessions'
+    params = @{
+      accountToken = $accountToken
+      filter = @{
+        CreatedAfter = Convert-DateTimeToUnixTime ((Get-Date).AddMonths([int]$historymonths * -1))
+        CreatedBefore = Convert-DateTimeToUnixTime ((Get-Date).AddDays(1))
+      }
+      range = @{
+        Offset = 0
+        Size = 20000
+      }
+    }
+  }
 
-#   $url2 = "https://api.backup.management/c2c/statistics/devices/id/$deviceid"
-#   $method = 'GET'
+  $jsondata = ConvertTo-Json $data -Depth 6
 
-#   $params = @{
-#     Uri         = $url2
-#     Method      = $method
-#     Headers     = @{ 'Authorization' = "Bearer $Script:visa" }
-#     WebSession  = $websession
-#     ContentType = 'application/json; charset=utf-8'
-#   }
+  $params = @{
+    Uri = $url
+    Method = $method
+    Headers = @{ 'Authorization' = "Bearer $visa" }
+    Body = [System.Text.Encoding]::UTF8.GetBytes($jsondata)
+    WebSession = $websession
+    ContentType = 'application/json; charset=utf-8'
+  }
 
-#   $Script:M365response = Invoke-RestMethod @params
+  $EnumerateM365HistoryResponse = Invoke-RestMethod @params
 
-#   Write-output  "$url2"
+  $M365Sessions = $EnumerateM365HistoryResponse.result.result | Select-Object Id,
+  Type,
+  @{
+    Name = "DataSource"
+    Expression = {$_.DataSourceType}
+  },
+  @{
+    Name = "StartTime"
+    Expression = {Convert-UnixTimeToDateTime ($_.StartTime)}
+  },
+  @{
+    Name = "EndTime"
+    Expression = {Convert-UnixTimeToDateTime ($_.EndTime)}
+  },
+  @{
+    Name = "Duration"
+    Expression = {[Math]::Round($_.Duration/60, 2)}
+  },
+  @{
+    Name = "Users"
+    Expression = {$_.AccountsCount}
+  },
+  @{
+    Name = "Sites"
+    Expression = {$_.SiteCollectionsCount}
+  },
+  Status,
+  ErrorsCount,
+  @{
+    Name = "AccountToken"
+    Expression = {$accounttoken}
+  }
 
-#   Get-AccountInfoById $deviceID
+  return $M365Sessions
+  $global:visa = $EnumerateM365HistoryResponse.visa
+}
 
-#   $script:devicestatistics = $M365response.deviceStatistics | Select-object @{
-#     N="Partner"
-#     E={$device.partnername}
-#   },
-#   @{
-#     N="Account"
-#     E={$device.DeviceName}
-#   },
-#   DisplayName,
-#   EmailAddress,
-#   Billable,
-#   @{
-#     N="Shared"
-#     E={$_.shared[0] -replace("TRUE","Shared") -replace("FALSE","") }
-#   },
-#   @{
-#     N="MailBox"
-#     E={$_.datasources.status[0] -replace("unprotected","") }
-#   },
-#   @{
-#     N="OneDrive"
-#     E={$_.datasources.status[1]  -replace("unprotected","")  }
-#   },
-#   @{
-#     N="SharePoint"
-#     E={$_.datasources.status[2]  -replace("unprotected","")  }
-#   },
-#   @{
-#     N="UserGuid"
-#     E={$_.UserId}
-#   },
-#   @{
-#     N="AccountToken"
-#     E={$device.accountToken}
-#   }
+Function Get-CoveM365Stats {
+  Param(
+    [Parameter(Mandatory=$true)]
+    [Int]$DeviceId,
+    [Parameter(Mandatory=$false)]
+    [String]$visa = $global:visa
+  ) #end param
 
-#   $script:devicestatistics | foreach-object {
-#     if((($_.Mailbox -eq "protected") -and ($_.shared -ne "shared")) -or ($_.OneDrive -eq "protected") -or ($_.SharePoint -eq "protected")) {
-#       $_.Billable = "Billable"
-#     }
-#   }
+  $url2 = "https://api.backup.management/c2c/statistics/devices/id/$deviceid"
+  $method = 'GET'
 
-#   $devicestatistics | Select-object * | format-table
+  $params = @{
+    Uri         = $url2
+    Method      = $method
+    Headers     = @{ 'Authorization' = "Bearer $visa" }
+    WebSession  = $websession
+    ContentType = 'application/json; charset=utf-8'
+  }
 
-#   if ($gridview) {
-#     $devicestatistics | out-gridview -title "$($device.partnername) | $($device.DeviceName)"
-#   }
-# }
+  try {
+    $M365response = Invoke-RestMethod @params
+  } catch {
+    Write-Output "Error: $_"
+  }
+
+  $devicestatistics = $M365response.deviceStatistics | Select-object @{
+    N="Partner"
+    E={$device.partnername}
+  },
+  @{
+    N="Account"
+    E={$device.DeviceName}
+  },
+  DisplayName,
+  EmailAddress,
+  Billable,
+  @{
+    N="Shared"
+    E={$_.shared[0] -replace("TRUE","Shared") -replace("FALSE","") }
+  },
+  @{
+    N="MailBox"
+    E={$_.datasources.status[0] -replace("unprotected","") }
+  },
+  @{
+    N="OneDrive"
+    E={$_.datasources.status[1]  -replace("unprotected","")  }
+  },
+  @{
+    N="SharePoint"
+    E={$_.datasources.status[2]  -replace("unprotected","")  }
+  },
+  @{
+    N="UserGuid"
+    E={$_.UserId}
+  },
+  @{
+    N="AccountToken"
+    E={$accountToken}
+  }
+
+  $devicestatistics | foreach-object {
+    if((($_.Mailbox -eq "protected") -and ($_.shared -ne "shared")) -or ($_.OneDrive -eq "protected") -or ($_.SharePoint -eq "protected")) {
+      $_.Billable = "Billable"
+    }
+  }
+
+  return $devicestatistics
+  $global:visa = $M365response.visa
+}
