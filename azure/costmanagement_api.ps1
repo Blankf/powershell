@@ -105,7 +105,13 @@ function Get-AzureGroupCosts {
 "@
 
   $uri = "https://management.azure.com/subscriptions/$SubscriptionId/providers/Microsoft.CostManagement/query?api-version=2023-03-01&top=5000"
-  $response = Invoke-RestMethod -Method Post -Uri $uri -Headers @{ Authorization = "Bearer $AccessToken" } -Body $jsonobject -ContentType "application/json"
+
+  try {
+    $response = Invoke-RestMethod -Method Post -Uri $uri -Headers @{ Authorization = "Bearer $AccessToken" } -Body $jsonobject -ContentType "application/json"
+  } catch {
+    Write-Error "Failed to retrieve costs. Error: $_"
+    return
+  }
 
   $costs = @()
   $response.properties.rows | ForEach-Object {
@@ -121,8 +127,7 @@ function Get-AzureGroupCosts {
 
   if ($total) {
     $totalprice = ($costs.TotalEUR | Measure-Object -Sum).Sum / 100
-    $price = '{0:C}' -f $totalprice
-    return $price
+    return $totalprice
   } else {
     return $costs
   }
@@ -258,7 +263,13 @@ function Get-AzureTagCosts {
 "@
 
   $uri = "https://management.azure.com/subscriptions/$SubscriptionId/providers/Microsoft.CostManagement/query?api-version=2023-03-01&top=5000"
-  $response = Invoke-RestMethod -Method Post -Uri $uri -Headers @{ Authorization = "Bearer $AccessToken" } -Body $jsonobject -ContentType "application/json"
+
+  try {
+    $response = Invoke-RestMethod -Method Post -Uri $uri -Headers @{ Authorization = "Bearer $AccessToken" } -Body $jsonobject -ContentType "application/json"
+  } catch {
+    Write-Error "Failed to retrieve costs. Error: $_"
+    return
+  }
 
   $costs = @()
   $response.properties.rows | ForEach-Object {
@@ -359,7 +370,13 @@ https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-s
   $accessToken = [Microsoft.Azure.Commands.Common.Authentication.AzureSession]::Instance.AuthenticationFactory.Authenticate($context.Account, $context.Environment, $context.Tenant.Id.ToString(), $null, [Microsoft.Azure.Commands.Common.Authentication.ShowDialog]::Never, $null, $resource).AccessToken
 
   $uri = "https://management.azure.com/subscriptions/$SubscriptionId/resources?api-version=2021-04-01"
+
+  try {
   $response = Invoke-RestMethod -Method Get -Uri $uri -Headers @{Authorization = "Bearer $accessToken" }
+  } catch {
+    Write-Error "Failed to retrieve tags. Error: $_"
+    return
+  }
 
   $tagList = @()
   $newlist = @()
