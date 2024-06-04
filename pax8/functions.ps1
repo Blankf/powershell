@@ -19,7 +19,9 @@ function Get-Pax8InvoiceDetails {
   [Parameter()]
   [array]$customers,
   [Parameter()]
-  [switch]$includesummary
+  [switch]$includesummary,
+  [Parameter()]
+  [switch]$showsummary
   )
 
   $latestinvoice = Get-Pax8Invoice | Select-Object -First 1
@@ -45,6 +47,8 @@ function Get-Pax8InvoiceDetails {
     $totalazurecosts = [math]::Round($totalazurecosts, 2)
     $totallicensecosts = [math]::Round($totallicensecosts, 2)
     $totallicenseretail = [math]::Round($totallicenseretail, 2)
+
+    if (!($showsummary)) {
 
     # Generate a custom table with a calculated "total" property, a "subscription" property, and a "subscriptionName" property
     $custinvoicedata | Select-Object @{
@@ -108,8 +112,9 @@ function Get-Pax8InvoiceDetails {
         }
       }
     }
+    }
 
-    if ($includesummary) {
+    if ($includesummary -or $showsummary) {
       $invoiceSummary = [PSCustomObject]@{
         Customer           = $customer
         TotalAzureCosts    = $totalazurecosts
