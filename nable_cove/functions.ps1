@@ -19,18 +19,44 @@ Function Convert-DateTimeToUnixTime($DateToConvert) {
   Return $NewEpoch
 }
 
-Function CallJSON($url, $object) {
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes($object)
-    $web = [System.Net.WebRequest]::Create($url)
-    $web.Method = "POST"
-    $web.ContentLength = $bytes.Length
-    $web.ContentType = "application/json"
-    $stream = $web.GetRequestStream()
-    $stream.Write($bytes, 0, $bytes.Length)
-    $stream.close()
-    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
-    return $reader.ReadToEnd() | ConvertFrom-Json
-    $reader.Close()
+Function CallJSON {
+<#
+.SYNOPSIS
+Sends a POST request to the specified URL with the provided JSON object.
+
+.DESCRIPTION
+The CallJSON function sends a POST request to the specified URL with the provided JSON object. It converts the response from the server to a PowerShell object.
+
+.PARAMETER url
+The URL to which the POST request will be sent.
+
+.PARAMETER object
+The JSON object to be sent in the request body.
+
+.EXAMPLE
+$url = "https://api.example.com/users"
+$object = '{"partnername": "John", "username": 30}'
+$response = CallJSON -url $url -object $object
+$response
+#>
+  param (
+    [Parameter(Mandatory=$true)]
+    [string]$url,
+    [Parameter(Mandatory=$true)]
+    [string]$object
+  )
+
+  $bytes = [System.Text.Encoding]::UTF8.GetBytes($object)
+  $web = [System.Net.WebRequest]::Create($url)
+  $web.Method = "POST"
+  $web.ContentLength = $bytes.Length
+  $web.ContentType = "application/json"
+  $stream = $web.GetRequestStream()
+  $stream.Write($bytes, 0, $bytes.Length)
+  $stream.close()
+  $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+  return $reader.ReadToEnd() | ConvertFrom-Json
+  $reader.Close()
 }
 
 Function connect-covebackupmanagement {
@@ -87,7 +113,7 @@ Function connect-covebackupmanagement {
     Add-Member -PassThru NoteProperty id '1') | ConvertTo-Json
 
     # (Call the JSON function with URL and authentication object)
-    $global:session = CallJSON $urlJSON $objAuth
+    $global:session = CallJSON -url $urlJSON -object $objAuth
     Start-Sleep -Milliseconds 100
 
     # # (Variable to hold current visa and reused in following routines)
@@ -264,15 +290,8 @@ Function Get-CoveM365Users {
     ContentType = 'application/json; charset=utf-8'
   }
   $EnumerateM365UsersResponse = Invoke-RestMethod @params
-  $M365UserStatistics = $EnumerateM365UsersResponse.result.result.Users | Select-object @{
-    Name = "Partner"
-    Expression = {$device.partnername}
-  },
-  @{
-    Name = "Account"
-    Expression = {$device.DeviceName}
-  },
-  DisplayName,
+
+  $M365UserStatistics = $EnumerateM365UsersResponse.result.result.Users | Select-object DisplayName,
   EmailAddress,
   @{
     Name = "MailBoxSelection"
@@ -330,11 +349,8 @@ Function Get-CoveM365Users {
     Name = "OneDriveAutoInclude"
     Expression = {$EnumerateM365UsersResponse.result.result.OneDriveAutoInclusionType}
   },
-  UserGuid,
-  @{
-    Name = "AccountToken"
-    Expression = {$AccountToken}
-  }
+  UserGuid
+
   #$M365UserStatistics | Select-object * | format-table
   return $M365UserStatistics
   $global:visa = $EnumerateM365UsersResponse.visa
@@ -408,11 +424,7 @@ Function Get-CoveM365History {
     Expression = {$_.SiteCollectionsCount}
   },
   Status,
-  ErrorsCount,
-  @{
-    Name = "AccountToken"
-    Expression = {$accounttoken}
-  }
+  ErrorsCount
 
   return $M365Sessions
   $global:visa = $EnumerateM365HistoryResponse.visa
