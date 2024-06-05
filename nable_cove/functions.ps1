@@ -455,40 +455,32 @@ Function Get-CoveM365Stats {
     Write-Output "Error: $_"
   }
 
-  $devicestatistics = $M365response.deviceStatistics | Select-object @{
-    N="Partner"
-    E={$device.partnername}
-  },
-  @{
-    N="Account"
-    E={$device.DeviceName}
-  },
-  DisplayName,
+  $devicestatistics = $M365response.deviceStatistics | Select-object DisplayName,
   EmailAddress,
   Billable,
   @{
-    N="Shared"
-    E={$_.shared[0] -replace("TRUE","Shared") -replace("FALSE","") }
+    Nname = "Shared"
+    Expression = {$_.shared[0] -replace("TRUE","Shared") -replace("FALSE","") }
   },
   @{
-    N="MailBox"
-    E={$_.datasources.status[0] -replace("unprotected","") }
+    Name = "MailBox"
+    Expression = {$_.datasources.status[0] -replace("unprotected","") }
   },
   @{
-    N="OneDrive"
-    E={$_.datasources.status[1]  -replace("unprotected","")  }
+    Name = "OneDrive"
+    Expression = {$_.datasources.status[1]  -replace("unprotected","")  }
   },
   @{
-    N="SharePoint"
-    E={$_.datasources.status[2]  -replace("unprotected","")  }
+    Name = "SharePoint"
+    Expression = {$_.datasources.status[2]  -replace("unprotected","")  }
   },
   @{
-    N="UserGuid"
-    E={$_.UserId}
+    Name = "UserGuid"
+    Expression = {$_.UserId}
   },
   @{
-    N="AccountToken"
-    E={$accountToken}
+    Name = "AccountToken"
+    Expression = {$accountToken}
   }
 
   $devicestatistics | foreach-object {
