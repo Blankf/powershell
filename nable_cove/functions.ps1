@@ -519,7 +519,7 @@ The function returns an object containing the following properties:
   EmailAddress,
   Billable,
   @{
-    Nname = "Shared"
+    Name = "Shared"
     Expression = {$_.shared[0] -replace("TRUE","Shared") -replace("FALSE","") }
   },
   @{
