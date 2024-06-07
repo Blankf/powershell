@@ -241,7 +241,7 @@ Function Get-CoveDevices {
       SelectedGB = [math]::Round([Decimal](($DeviceResult.Settings.T3 -join '') / 1GB), 2)
       UsedGB = [math]::Round([Decimal](($DeviceResult.Settings.US -join '') / 1GB), 2)
       #Last28Days = (($DeviceResult.Settings.TB -join '')[-1..-28] -join '') -replace ("8", [char]0x26a0) -replace ("7", [char]0x23f9) -replace ("6", [char]0x23f9) -replace ("5", [char]0x2611) -replace ("2", [char]0x274e) -replace ("1", [char]0x2BC8) -replace ("0", [char]0x274c)
-      #Last28 = (($DeviceResult.Settings.TB -join '')[-1..-28] -join '') -replace("8","!") -replace("7","!") -replace("6","?") -replace("5","+") -replace("2","-") -replace("1",">") -replace("0","X")
+      Last28 = (($DeviceResult.Settings.TB -join '')[-1..-28] -join '') -replace("8","!") -replace("7","!") -replace("6","?") -replace("5","+") -replace("2","-") -replace("1",">") -replace("0","X")
       Errors = $DeviceResult.Settings.T7 -join ''
       Billable = $DeviceResult.Settings.TM -join ''
       Shared = $DeviceResult.Settings.D19F21 -join ''
