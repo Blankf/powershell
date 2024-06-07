@@ -357,6 +357,32 @@ Function Get-CoveM365Users {
 }
 
 Function Get-CoveM365History {
+<#
+.SYNOPSIS
+Retrieves the M365 history sessions based on the specified parameters.
+
+.DESCRIPTION
+The Get-CoveM365History function retrieves the M365 history sessions using the Backup Management API. It allows you to specify the account token, visa, and history months to filter the sessions.
+
+.PARAMETER AccountToken
+The account token used for authentication.
+
+.PARAMETER Visa
+The visa token used for authentication. If not provided, the global visa token will be used.
+
+.PARAMETER HistoryMonths
+The number of months to go back in history. Default is 1 month.
+
+.EXAMPLE
+Get-CoveM365History -AccountToken "your-account-token" -Visa "your-visa-token" -HistoryMonths 3
+
+This example retrieves the M365 history sessions for the specified account token and visa token, going back 3 months.
+
+.OUTPUTS
+System.Management.Automation.PSCustomObject[]
+The M365 sessions retrieved from the Backup Management API.
+
+#>
   param (
     [Parameter(Mandatory = $true)]
     [string]$AccountToken,
@@ -431,6 +457,40 @@ Function Get-CoveM365History {
 }
 
 Function Get-CoveM365Stats {
+<#
+.SYNOPSIS
+Retrieves statistics for a specific device from the Cove M365 API.
+
+.DESCRIPTION
+The Get-CoveM365Stats function retrieves statistics for a specific device from the Cove M365 API. It makes a GET request to the API endpoint and returns the device statistics in a structured format.
+
+.PARAMETER DeviceId
+The ID of the device for which statistics are to be retrieved. This parameter is mandatory.
+
+.PARAMETER Visa
+The authorization token to access the Cove M365 API. If not provided, the function will use the global variable $visa.
+
+.EXAMPLE
+Get-CoveM365Stats -DeviceId 12345 -Visa "your-authorization-token"
+
+This example retrieves the statistics for the device with ID 12345 using the specified authorization token.
+
+.OUTPUTS
+The function returns an object containing the following properties:
+- DisplayName: The display name of the device.
+- EmailAddress: The email address associated with the device.
+- Billable: Indicates whether the device is billable or not.
+- Shared: Indicates if the device is shared.
+- MailBox: The status of the mailbox data source.
+- OneDrive: The status of the OneDrive data source.
+- SharePoint: The status of the SharePoint data source.
+- UserGuid: The user ID associated with the device.
+- AccountToken: The account token used for authentication.
+
+.NOTES
+- This function requires an active internet connection to access the Cove M365 API.
+- The function may throw an error if the API request fails or if the provided authorization token is invalid.
+#>
   Param(
     [Parameter(Mandatory=$true)]
     [Int]$DeviceId,
