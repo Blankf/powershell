@@ -40,7 +40,7 @@ catch {
     return
 }
 
-$AntiMalwareFilterName = "Youdo365 Anti-Malware Policy"
+$AntiMalwareFilterName = "Anti-Malware Policy"
 $AntimalwarePolicyNameWithVersion = "$AntiMalwareFilterName $Version"
 
 # Get the Existing Anti-Malware Policy
