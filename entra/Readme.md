@@ -1,5 +1,12 @@
 There is a small story to: ConfigureExchangeOnlineMSI.ps1
 
+```
+$GraphAccessToken = (Get-AzAccessToken -ResourceUrl 'https://graph.microsoft.com').Token
+$ExchangeAccessToken = (Get-AzAccessToken -ResourceUrl 'https://outlook.office365.com').Token
+```
+The GraphAccessToken should contain all graph permissions
+The exchangeAccessToken should contain Exchange.ManageAsApp
+
 we were using managed identities with AzureDevops, and configure the proper rights to configure exchangeonline items.
 
 ```
